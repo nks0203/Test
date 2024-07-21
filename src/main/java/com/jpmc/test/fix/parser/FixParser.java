@@ -5,7 +5,7 @@ import com.jpmc.test.fix.cache.Trie;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FixParserStringBuffer {
+public class FixParser {
 
     public static final Trie fixMetaCache = new Trie();
 

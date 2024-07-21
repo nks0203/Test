@@ -1,6 +1,6 @@
 package com.jpmc.test.fix;
 
-import static com.jpmc.test.fix.parser.FixParserStringBuffer.*;
+import static com.jpmc.test.fix.parser.FixParser.*;
 
 public class FixParserMain {
 
