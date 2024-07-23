@@ -1,43 +1,17 @@
 package com.jpmc.test.fix.parser;
 
-import com.jpmc.test.fix.cache.Trie;
-
-import java.util.HashMap;
-import java.util.Map;
+import static com.jpmc.test.fix.FieldsCache.*;
 
 public class FixParser {
 
-    public static final Trie fixMetaCache = new Trie();
 
-    static {
-        fixMetaCache.put("8", "BeginString");
-        fixMetaCache.put("9", "BodyLength");
-        fixMetaCache.put("35", "MsgType");
-        fixMetaCache.put("49", "SenderCompID");
-        fixMetaCache.put("56", "TargetCompID");
-        fixMetaCache.put("34", "MsgSeqNum");
-        fixMetaCache.put("52", "SendingTime");
-        fixMetaCache.put("262", "MDReqID");
-        fixMetaCache.put("268", "NoMDEntries");
-        fixMetaCache.put("279", "MDUpdateAction");
-        fixMetaCache.put("269", "MDEntryType");
-        fixMetaCache.put("278", "MDEntryID");
-        fixMetaCache.put("55", "Symbol");
-        fixMetaCache.put("270", "MDEntryPx");
-        fixMetaCache.put("15", "Currency");
-        fixMetaCache.put("271", "MDEntrySize");
-        fixMetaCache.put("346", "NumberOfOrders");
-        fixMetaCache.put("10", "CheckSum");
-    }
-
-    public static void parseFixMessage(byte[] fixMessageBytes) {
+    public static StringBuilder parseFixMessage(byte[] fixMessageBytes) {
         // Create a map to store the parsed key-value pairs
-        Map<String, String> fixMap = new HashMap<>();
-
         // Parse the byte array directly to extract key-value pairs
         int start = 0;
         int length = fixMessageBytes.length;
-        StringBuffer stringBuilder = new StringBuffer();
+        StringBuilder outputSB = new StringBuilder();
+        int fixDefaultVersionIndex = 0;
         while (start < length) {
 
             int equalsIndex = -1;
@@ -55,19 +29,32 @@ public class FixParser {
 
             // If both '=' and '|' are found, extract key and value
             if (equalsIndex != -1 && separatorIndex != -1) {
-                String key = fixMetaCache.get(fixMessageBytes, start, equalsIndex);
-                stringBuilder.append(key).append(" : ");
+                int key = fixMessageBytes[start] - 48;
+                if (key == 8) {
+                    // get FIX version to fetch relevant field names
+                    String version = new String(fixMessageBytes, equalsIndex + 1, separatorIndex - equalsIndex - 1);
+                    for (; fixDefaultVersionIndex < fixVersionCache.length; fixDefaultVersionIndex++) {
+                        if (fixVersionCache[fixDefaultVersionIndex].equalsIgnoreCase(version)) {
+                            break;
+                        }
+                    }
+                }
+                for (start++; start < equalsIndex; start++) {
+                    key = key * 10 + (fixMessageBytes[start] - 48);
+                }
+                outputSB.append(key).append("\t\t").append(fieldsCache[fixDefaultVersionIndex][key]).append(" : ");
 
                 for (equalsIndex++; equalsIndex < separatorIndex; equalsIndex++) {
-                    stringBuilder.append((char) fixMessageBytes[equalsIndex]);
+                    outputSB.append((char) fixMessageBytes[equalsIndex]);
                 }
-                stringBuilder.append(System.lineSeparator());
+                outputSB.append(System.lineSeparator());
+
                 // Move the start index to the character after '|'
                 start = separatorIndex + 1;
             } else {
                 break;
             }
         }
-        System.out.println(stringBuilder);
+       return outputSB;
     }
 }
