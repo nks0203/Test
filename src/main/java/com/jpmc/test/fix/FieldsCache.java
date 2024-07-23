@@ -6,12 +6,11 @@ import java.io.*;
 
 public class FieldsCache {
 
-    public static final String[] fixVersionCache = new String[2];
+    public static final byte[][] fixVersionCache = new byte[1][];//only 1 row as one version supported, can be increased to more rows
     public static String[][] fieldsCache;
 
-    static void initCache() {
-        fixVersionCache[0]="FIX.4.4";
-        fixVersionCache[1]="FIX.4.2";
+    static {
+        fixVersionCache[0]="4.4".getBytes();
         fieldsCache = readDataFromFile("Fields.txt", 1, 957);
     }
 
