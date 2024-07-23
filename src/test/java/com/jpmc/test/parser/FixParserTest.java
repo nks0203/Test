@@ -16,7 +16,7 @@ public class FixParserTest {
         StringBuilder actualMsg = parseFixMessage(fixMessageBytes);
 
         // Then
-        String expectedMsg = "FIX version not supported";
+        String expectedMsg = "FIX version not supported . Please enter a FIX message of version 4.4\n";
         assertEquals(expectedMsg, actualMsg.toString().replace("\r", ""));
     }
 

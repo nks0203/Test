@@ -42,7 +42,7 @@ public class FixParser {
                         }
                     }
                     if(fixDefaultVersionIndex==-1){
-                        return new StringBuilder().append("FIX version not supported");
+                        return new StringBuilder().append("FIX version not supported . Please enter a FIX message of version 4.4\n");
                     }
                 }
 
