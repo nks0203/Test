@@ -1,17 +1,15 @@
 package com.jpmc.test.fix.parser;
 
-import static com.jpmc.test.fix.FieldsCache.*;
+import static com.jpmc.test.fix.FieldsCache.fieldsCache;
+import static com.jpmc.test.fix.FieldsCache.fixVersionCache;
 
 public class FixParser {
 
-
     public static StringBuilder parseFixMessage(byte[] fixMessageBytes) {
-        // Create a map to store the parsed key-value pairs
-        // Parse the byte array directly to extract key-value pairs
         int start = 0;
         int length = fixMessageBytes.length;
         StringBuilder outputSB = new StringBuilder();
-        int fixDefaultVersionIndex = 0;
+        int fixDefaultVersionIndex = -1;
         while (start < length) {
 
             int equalsIndex = -1;
@@ -31,14 +29,23 @@ public class FixParser {
             if (equalsIndex != -1 && separatorIndex != -1) {
                 int key = fixMessageBytes[start] - 48;
                 if (key == 8) {
-                    // get FIX version to fetch relevant field names
-                    String version = new String(fixMessageBytes, equalsIndex + 1, separatorIndex - equalsIndex - 1);
-                    for (; fixDefaultVersionIndex < fixVersionCache.length; fixDefaultVersionIndex++) {
-                        if (fixVersionCache[fixDefaultVersionIndex].equalsIgnoreCase(version)) {
-                            break;
+                    // get FIX version to fetch relevant field names. One time. can be taken out of this loop.
+                    for (int j = 0; j < fixVersionCache.length; j++) {
+                        for (int i = equalsIndex + 5; i < separatorIndex; i++) {
+                            if (fixVersionCache[j][i - (equalsIndex + 5)] != fixMessageBytes[i]) {
+                                break;
+                            }
+                            if (i == separatorIndex - 1) {
+                                fixDefaultVersionIndex = j;
+                                break;//Showing redundant as only version cache size is 1 only right now.
+                            }
                         }
                     }
+                    if(fixDefaultVersionIndex==-1){
+                        return new StringBuilder().append("FIX version not supported");
+                    }
                 }
+
                 for (start++; start < equalsIndex; start++) {
                     key = key * 10 + (fixMessageBytes[start] - 48);
                 }
@@ -55,6 +62,6 @@ public class FixParser {
                 break;
             }
         }
-       return outputSB;
+        return outputSB;
     }
 }

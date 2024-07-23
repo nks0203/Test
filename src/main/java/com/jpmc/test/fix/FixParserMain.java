@@ -8,20 +8,18 @@ public class FixParserMain {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Welcome to FixParser!!\n");
-
-        FieldsCache.initCache();
+        System.out.println("Welcome to FixParser!! This API supports only FIX.4.4 version so far.\n");
 
         while (true) {
-            System.out.println("Enter new FIX message (type 'exit' to quit):");
+            System.out.println("Enter new FIX message (type 'e' to exit):");
             String input = scanner.nextLine();
-            if ("exit".equalsIgnoreCase(input)) {
+            if ("e".equalsIgnoreCase(input)) {
                 break;
             }
 
+            System.out.println("\nMessage:");
             byte[] fixMessageBytes = input.getBytes();
             System.out.println(parseFixMessage(fixMessageBytes));
-            System.out.println("FIX message parsed!");
         }
 
         scanner.close();
